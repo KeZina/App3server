@@ -11,8 +11,8 @@ const dbUrl = config.get('dbUrl');
 const port = config.get('port');
 
 // const upload = multer();
-const app = express();
-const server = http.createServer(app);
+// const app = express();
+const server = http.createServer();
 const wss = new WebSocket.Server({server});
 
 // app.use(express.json());
@@ -21,12 +21,12 @@ const wss = new WebSocket.Server({server});
 
 // const users = new Set();
 
-const create = async (form, ws) => {
+const createTemp = async (form, ws) => {
     try {
         const {name} = form;
-        const isNameTaken = await User.findOne({name});
+        const nameIsTaken = await User.findOne({name});
 
-        if(isNameTaken) {
+        if(nameIsTaken) {
             ws.send(JSON.stringify({
                 type: "create", 
                 auth: {
@@ -35,12 +35,12 @@ const create = async (form, ws) => {
                 }, 
                 message: "name is already exists"
             }));
-        } else if(!isNameTaken) {
+        } else if(!nameIsTaken) {
             const user = new User({
                 name,
                 token: ''
             })
-            await user.addToken();
+            user.addToken();
 
             ws.send(JSON.stringify({
                 type: "create", 
@@ -48,8 +48,47 @@ const create = async (form, ws) => {
                     temp: true,
                     perm: false
                 }, 
-                token: user.token,
-                name: user.name
+                name: user.name,
+                token: user.token
+            }))
+
+
+        } else throw new Error();
+    } catch(e) {
+        console.log(e);
+    }
+}
+
+const createPerm = async (form, ws) => {
+    try {
+        const {name, password} = form;
+        const nameIsTaken = await User.findOne({name});
+
+        if(nameIsTaken) {
+            ws.send(JSON.stringify({
+                type: "create", 
+                auth: {
+                    temp: false,
+                    perm: false
+                }, 
+                message: "name is already exists"
+            }));
+        } else if(!nameIsTaken) {
+            const user = new User({
+                name,
+                token: ''
+            })
+            await user.addHash(password);
+            await user.addToken();
+
+            ws.send(JSON.stringify({
+                type: "create", 
+                auth: {
+                    temp: false,
+                    perm: true
+                },
+                name: user.name,
+                token: user.token
             }))
         } else throw new Error();
     } catch(e) {
@@ -57,42 +96,48 @@ const create = async (form, ws) => {
     }
 }
 
-const checkAuth = async (data, ws) => {
+const login = async (form, ws) => {
     try {
-        const verToken = jwt.verify(data.token, config.get('jwtSecret'));
-        const user = await User.findById(verToken._id);
+        const {name, password} = form;
+        const user = await User.findOne({name});
 
         if(user) {
-            ws.send(JSON.stringify({
-                type: "auth", 
-                auth: {
-                    temp: true,
-                    perm: false
-                }, 
-                name: user.name
-            }))
+            const hash = await user.compareHash(password);
+            if(hash) {
+                await user.addToken();
+                ws.send(JSON.stringify({
+                    type: "login",
+                    auth: {
+                        temp: false,
+                        perm: true
+                    },
+                    name: user.name,
+                    token: user.token
+                }))
+            } else if(!hash){
+                ws.send(JSON.stringify({
+                    type: 'login', 
+                    auth: {
+                        temp: false,
+                        perm: false
+                    }
+                }))
+            } else {
+                throw new Error();
+            }
         } else if(!user) {
             ws.send(JSON.stringify({
-                type: 'auth', 
+                type: 'login', 
                 auth: {
                     temp: false,
                     perm: false
                 }
             }))
-        } else throw new Error();
-
+        } else {
+            throw new Error();
+        }
     } catch(e) {
         console.log(e);
-        if(e.message === 'jwt expired') {
-            ws.send(JSON.stringify({
-                type: "auth", 
-                auth: {
-                    temp: false,
-                    perm: false
-                }, 
-                message: e.message
-            }))
-        }
     }
 }
 
@@ -118,20 +163,97 @@ const logout = async (data, ws) => {
     }
 }
 
+const deleteAcc = async (data, ws) => {
+    try {
+        const verToken = jwt.verify(data.token, config.get('jwtSecret'));
+
+        await User.deleteOne({_id: verToken._id});
+
+        ws.send(JSON.stringify({
+            type: 'auth',
+            auth: {
+                temp: false,
+                perm: false
+            }
+        }))
+    } catch(e) {
+        console.log(e)
+    }
+}
+
+const checkAuth = async (data, ws) => {
+    try {
+        const verToken = jwt.verify(data.token, config.get('jwtSecret'));
+        const user = await User.findById(verToken._id);
+
+        if(user) {
+            if(user.hash){
+                ws.send(JSON.stringify({
+                    type: "auth", 
+                    auth: {
+                        temp: false,
+                        perm: true
+                    }, 
+                    name: user.name
+                }))
+            } else if(!user.hash) {
+                ws.send(JSON.stringify({
+                    type: "auth", 
+                    auth: {
+                        temp: true,
+                        perm: false
+                    }, 
+                    name: user.name
+                }))
+            }
+        } else if(!user) {
+            ws.send(JSON.stringify({
+                type: 'auth', 
+                auth: {
+                    temp: false,
+                    perm: false
+                }
+            }))
+        } else throw new Error();
+
+    } catch(e) {
+        console.log(e);
+        if(e.message === 'jwt expired') {
+            ws.send(JSON.stringify({
+                type: "auth", 
+                auth: {
+                    temp: false,
+                    perm: false
+                }, 
+                message: e.message
+            }))
+        }
+    }
+}
+
 wss.on('connection', ws => {
     console.log('connect')
     ws.on('message', message => {
         const data = JSON.parse(message);
 
         switch(data.type) {
-            case 'form':
-                create(data, ws);
+            case 'createTemp':
+                createTemp(data, ws);
                 return;
-            case 'checkAuth':
-                checkAuth(data, ws);
+            case 'createPerm':
+                createPerm(data, ws);
+                return;
+            case 'login':
+                login(data, ws);
                 return;
             case 'logout':
                 logout(data, ws);
+                return;
+            case 'deleteAcc':
+                deleteAcc(data,ws);
+                return
+            case 'checkAuth':
+                checkAuth(data, ws);
                 return;
         }
     })
