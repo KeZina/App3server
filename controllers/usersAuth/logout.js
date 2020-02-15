@@ -13,6 +13,7 @@ const logout = async (data, ws) => {
         }
 
         ws.send(JSON.stringify({
+            handler: 'user',
             type: 'auth',
             auth: {
                 temp: false,

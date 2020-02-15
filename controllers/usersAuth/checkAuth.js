@@ -10,7 +10,8 @@ const checkAuth = async (data, ws) => {
         if(user) {
             if(user.hash){
                 ws.send(JSON.stringify({
-                    type: "auth", 
+                    handler: 'user',
+                    type: 'auth', 
                     auth: {
                         temp: false,
                         perm: true
@@ -19,7 +20,8 @@ const checkAuth = async (data, ws) => {
                 }))
             } else if(!user.hash) {
                 ws.send(JSON.stringify({
-                    type: "auth", 
+                    handler: 'user',
+                    type: 'auth', 
                     auth: {
                         temp: true,
                         perm: false
@@ -29,6 +31,7 @@ const checkAuth = async (data, ws) => {
             }
         } else if(!user) {
             ws.send(JSON.stringify({
+                handler: 'user',
                 type: 'auth', 
                 auth: {
                     temp: false,
@@ -40,8 +43,10 @@ const checkAuth = async (data, ws) => {
     } catch(e) {
         console.log(e);
         if(e.message === 'jwt expired') {
+
             ws.send(JSON.stringify({
-                type: "auth", 
+                handler: 'user',
+                type: 'auth', 
                 auth: {
                     temp: false,
                     perm: false

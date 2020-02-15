@@ -10,7 +10,8 @@ const login = async (data, ws) => {
             if(hash) {
                 await user.addToken();
                 ws.send(JSON.stringify({
-                    type: "login",
+                    handler: 'user',
+                    type: 'login',
                     auth: {
                         temp: false,
                         perm: true
@@ -20,6 +21,7 @@ const login = async (data, ws) => {
                 }))
             } else if(!hash){
                 ws.send(JSON.stringify({
+                    handler: 'user',
                     type: 'login', 
                     auth: {
                         temp: false,
@@ -31,6 +33,7 @@ const login = async (data, ws) => {
             }
         } else if(!user) {
             ws.send(JSON.stringify({
+                handler: 'user',
                 type: 'login', 
                 auth: {
                     temp: false,

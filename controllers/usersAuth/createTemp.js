@@ -7,7 +7,8 @@ const createTemp = async (data, ws) => {
 
         if(nameIsTaken) {
             ws.send(JSON.stringify({
-                type: "create", 
+                handler: 'user',
+                type: 'createUser', 
                 auth: {
                     temp: false,
                     perm: false
@@ -22,7 +23,8 @@ const createTemp = async (data, ws) => {
             await user.addToken();
 
             ws.send(JSON.stringify({
-                type: "create", 
+                handler: 'user',
+                type: 'createUser',
                 auth: {
                     temp: true,
                     perm: false

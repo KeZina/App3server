@@ -9,6 +9,7 @@ const deleteAcc = async (data, ws) => {
         await User.deleteOne({_id: verToken._id});
 
         ws.send(JSON.stringify({
+            handler: 'user',
             type: 'auth',
             auth: {
                 temp: false,
