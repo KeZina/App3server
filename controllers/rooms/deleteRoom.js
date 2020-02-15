@@ -9,9 +9,17 @@ const deleteRoom = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'room',
             type: 'deleteRoom',
+            success: true
         }))
     } catch(e) {
         console.log(e)
+
+        ws.send(JSON.stringify({
+            handler: 'room',
+            type: 'deleteRoom',
+            message: e,
+            success: false
+        }))
     }
 
 }

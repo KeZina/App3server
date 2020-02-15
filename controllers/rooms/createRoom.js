@@ -34,6 +34,13 @@ const createRoom = async (data, ws) => {
         }
     } catch(e) {
         console.log(e); 
+
+        ws.send(JSON.stringify({
+            handler: 'room',
+            type: 'createRoom',
+            message: e,
+            success: false
+        }))
     }
 
 }

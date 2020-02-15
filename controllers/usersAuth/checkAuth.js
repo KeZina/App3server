@@ -42,18 +42,16 @@ const checkAuth = async (data, ws) => {
 
     } catch(e) {
         console.log(e);
-        if(e.message === 'jwt expired') {
-
-            ws.send(JSON.stringify({
-                handler: 'user',
-                type: 'auth', 
-                auth: {
-                    temp: false,
-                    perm: false
-                }, 
-                message: e.message
-            }))
-        }
+        
+        ws.send(JSON.stringify({
+            handler: 'user',
+            type: 'auth', 
+            auth: {
+                temp: false,
+                perm: false
+            }, 
+            message: e.message
+        }))
     }
 }
 

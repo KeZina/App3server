@@ -36,6 +36,16 @@ const createPerm = async (data, ws) => {
         } else throw new Error();
     } catch(e) {
         console.log(e);
+
+        ws.send(JSON.stringify({
+            handler: 'user',
+            type: 'auth', 
+            auth: {
+                temp: false,
+                perm: false
+            }, 
+            message: e
+        }))
     }
 }
 

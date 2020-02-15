@@ -2,15 +2,20 @@ const http = require ('http');
 const config = require('config');
 const mongoose = require('mongoose');
 const WebSocket = require('ws');
+
 const createTemp = require('./controllers/usersAuth/createTemp');
 const createPerm = require('./controllers/usersAuth/createPerm');
 const login = require('./controllers/usersAuth/login');
 const logout = require('./controllers/usersAuth/logout');
 const deleteAcc = require('./controllers/usersAuth/deleteAcc');
 const checkAuth = require('./controllers/usersAuth/checkAuth');
+
 const createRoom = require('./controllers/rooms/createRoom');
 const deleteRoom = require('./controllers/rooms/deleteRoom');
-const getRoomData = require('./controllers/rooms/getRoomData');
+const getRoom = require('./controllers/rooms/getRoom');
+
+const createMessage = require('./controllers/messages/createMessage');
+const getMessage = require('./controllers/messages/getMessages');
 
 const dbUrl = config.get('dbUrl');
 const port = config.get('port');
@@ -24,7 +29,7 @@ wss.on('connection', ws => {
         const data = JSON.parse(message);
 
         switch(data.type) {
-            // user case
+            // user cases
             case 'createTemp':
                 createTemp(data, ws);
                 return;
@@ -43,15 +48,22 @@ wss.on('connection', ws => {
             case 'checkAuth':
                 checkAuth(data, ws);
                 return;
-            // room case
+            // room cases
             case 'createRoom':
                 createRoom(data, ws);
                 return
-            case 'getRoomData':
-                getRoomData(data,ws);
+            case 'getRoom':
+                getRoom(data,ws);
                 return
             case 'deleteRoom':
                 deleteRoom(data, ws);
+                return;
+            // message cases
+            case 'createMessage':
+                createMessage(data, ws);
+                return;
+            case 'getMessage':
+                getMessage(data, ws);
                 return;
         }
     })

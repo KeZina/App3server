@@ -1,6 +1,6 @@
 const Room = require('../../models/Room');
 
-const getRoomData = async (data, ws) => {
+const getRoom = async (data, ws) => {
     try {
         const {url} = data;
 
@@ -9,21 +9,24 @@ const getRoomData = async (data, ws) => {
         if(room) {
             ws.send(JSON.stringify({
                 handler: 'room',
-                type: 'getRoomData',
+                type: 'getRoom',
                 name: room.name,
                 url,
                 success: true
             }))
         } else if(!room) {
-            ws.send(JSON.stringify({
-                handler: 'room',
-                type: 'getRoomData',
-                success: false
-            }))
+            throw new Error('Wrong url');
         }
     } catch(e) {
         console.log(e);
+
+        ws.send(JSON.stringify({
+            handler: 'room',
+            type: 'createRoom',
+            message: e,
+            success: false
+        }))
     }
 }
 
-module.exports = getRoomData;
+module.exports = getRoom;
