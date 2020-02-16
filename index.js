@@ -12,6 +12,7 @@ const checkAuth = require('./controllers/usersAuth/checkAuth');
 
 const createRoom = require('./controllers/rooms/createRoom');
 const deleteRoom = require('./controllers/rooms/deleteRoom');
+const getRoomList = require('./controllers/rooms/getRoomList');
 const getRoom = require('./controllers/rooms/getRoom');
 
 const createMessage = require('./controllers/messages/createMessage');
@@ -30,109 +31,73 @@ wss.on('connection', ws => {
 
     ws.on('message', async message => {
         const data = JSON.parse(message);
-        console.log(counter.usersInSite)
+        const sendToAll = (handler, type, amount) => wss.clients.forEach(client => client.send(JSON.stringify({
+            handler,
+            type,
+            amount
+        })));
 
         switch(data.type) {
             // user cases
             case 'createTemp':
                 await createTemp(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'createPerm':
                 await createPerm(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'login':
                 await login(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'logout':
                 await logout(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'deleteAcc':
                 await deleteAcc(data,ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return
 
             case 'checkAuth':
                 await checkAuth(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             // room cases
             case 'createRoom':
                 await createRoom(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
-                return
+                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
+                return;
+
+            case 'getRoomList':
+                await getRoomList(ws);
+                return;
 
             case 'getRoom':
-                await getRoom(data,ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                await getRoom(data, ws);
+                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return
 
             case 'deleteRoom':
                 await deleteRoom(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             // message cases
             case 'createMessage':
                 await createMessage(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'getMessage':
                 await getMessage(data, ws);
-                wss.clients.forEach(client => client.send(JSON.stringify({
-                    handler: 'counter',
-                    type: 'usersInSite',
-                    amount: counter.getUsersInSite()
-                })));
+                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
         }
     })

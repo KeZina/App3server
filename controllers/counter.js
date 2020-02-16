@@ -1,6 +1,6 @@
 const counter = {
     usersInSite: new Set(),
-    roomsInSite: [],
+    roomsInSite: new Set(),
     usersInRoom: [],
     addUsersInSite: function(user){
         this.usersInSite.add(user);
@@ -12,10 +12,13 @@ const counter = {
         return Array.from(this.usersInSite);
     },
     addRoomsInSite: function(room){
-        roomsInSite++;
+        this.roomsInSite.add(room);
     },
     removeRoomsInSite: function(room){
-        roomsInSite--;
+        this.roomsInSite.delete(room);
+    },
+    getRoomsInSite: function(){
+        return Array.from(this.roomsInSite);
     },
     addUsersInRoom: function(user){
         usersInRoom++;
