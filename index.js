@@ -23,8 +23,12 @@ const port = config.get('port');
 const server = http.createServer();
 const wss = new WebSocket.Server({server});
 
+const usersInSite = [];
+
+
 wss.on('connection', ws => {
-    console.log('connect')
+    console.log('connect');
+
     ws.on('message', message => {
         const data = JSON.parse(message);
 
@@ -67,7 +71,6 @@ wss.on('connection', ws => {
                 return;
         }
     })
-    // ws.on('error', error => console.log(error))
 })
 
 

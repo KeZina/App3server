@@ -1,19 +1,20 @@
-const Message = require('../../models/Message');
+const Room = require('../../models/Room');
 
 const getMessage = async (data, ws) => {
     try {
-        const data = await Message.find({});
+        const room = await Room.findById(data.url);
 
-        const content = data.map(item => {
-            return {id: item._id, content: item.content, date: item.date, sender: item.sender};
-        })
+        if(room) {
+            ws.send(JSON.stringify({
+                handler: 'message',
+                type: 'getMessage',
+                content: room.messages,
+                success: true
+            }))
+        } else if(!room) {
+            throw new Error('Wrong url')
+        }
 
-        ws.send(JSON.stringify({
-            handler: 'message',
-            type: 'getMessage',
-            content,
-            success: true
-        }))
     } catch(e) {
         console.log(e);
 

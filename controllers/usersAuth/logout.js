@@ -1,10 +1,12 @@
 const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const counter = require('../counter');
 
 const logout = async (data, ws) => {
     try {
-        const verToken = jwt.verify(data.token, config.get('jwtSecret'));
+        const {name, token} = data;
+        const verToken = jwt.verify(token, config.get('jwtSecret'));
 
         if(data.authType === 'temp') {
             await User.deleteOne({_id: verToken._id});
@@ -12,13 +14,12 @@ const logout = async (data, ws) => {
             await User.updateOne({_id: verToken._id}, {token: ""});
         }
 
+        counter.removeUsersInSite(name);
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth',
-            auth: {
-                temp: false,
-                perm: false
-            }
+            auth: false,
+            usersInSite: [...counter.usersInSite]
         }))
     } catch(e) {
         console.log(e);
@@ -26,10 +27,7 @@ const logout = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
+            auth: false,
             message: e
         }))
     }

@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const counter = require('../counter');
 
 const createPerm = async (data, ws) => {
     try {
@@ -9,10 +10,7 @@ const createPerm = async (data, ws) => {
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'createUser', 
-                auth: {
-                    temp: false,
-                    perm: false
-                }, 
+                auth: false,
                 message: 'name is already exists'
             }));
         } else if(!nameIsTaken) {
@@ -23,6 +21,7 @@ const createPerm = async (data, ws) => {
             await user.addHash(password);
             await user.addToken();
 
+            counter.addUsersInSite(user.name);
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'createUser', 
@@ -31,7 +30,8 @@ const createPerm = async (data, ws) => {
                     perm: true
                 },
                 name: user.name,
-                token: user.token
+                token: user.token,
+                usersInSite: [...counter.usersInSite]
             }))
         } else throw new Error();
     } catch(e) {
@@ -40,10 +40,7 @@ const createPerm = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
+            auth: false,
             message: e
         }))
     }

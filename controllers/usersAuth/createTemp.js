@@ -1,4 +1,5 @@
-const User = require('../../models/User')
+const User = require('../../models/User');
+const counter = require('../counter');
 
 const createTemp = async (data, ws) => {
     try {
@@ -9,10 +10,7 @@ const createTemp = async (data, ws) => {
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'createUser', 
-                auth: {
-                    temp: false,
-                    perm: false
-                }, 
+                auth: false,
                 message: "name is already exists"
             }));
         } else if(!nameIsTaken) {
@@ -22,6 +20,7 @@ const createTemp = async (data, ws) => {
             })
             await user.addToken();
 
+            counter.addUsersInSite(user.name);
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'createUser',
@@ -30,7 +29,8 @@ const createTemp = async (data, ws) => {
                     perm: false
                 }, 
                 name: user.name,
-                token: user.token
+                token: user.token,
+                usersInSite: [...counter.usersInSite]
             }))
 
 
@@ -41,10 +41,7 @@ const createTemp = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
+            auth: false,
             message: e
         }))
     }

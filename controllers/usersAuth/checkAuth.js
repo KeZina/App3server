@@ -1,6 +1,8 @@
 const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const counter = require('../counter');
+
 
 const checkAuth = async (data, ws) => {
     try {
@@ -9,6 +11,7 @@ const checkAuth = async (data, ws) => {
 
         if(user) {
             if(user.hash){
+                counter.addUsersInSite(user.name);
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'auth', 
@@ -16,9 +19,11 @@ const checkAuth = async (data, ws) => {
                         temp: false,
                         perm: true
                     }, 
-                    name: user.name
+                    name: user.name,
+                    usersInSite: [...counter.usersInSite]
                 }))
             } else if(!user.hash) {
+                counter.addUsersInSite(user.name);
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'auth', 
@@ -26,31 +31,28 @@ const checkAuth = async (data, ws) => {
                         temp: true,
                         perm: false
                     }, 
-                    name: user.name
+                    name: user.name,
+                    usersInSite: [...counter.usersInSite]
                 }))
             }
         } else if(!user) {
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'auth', 
-                auth: {
-                    temp: false,
-                    perm: false
-                }
+                auth: false
             }))
         } else throw new Error();
 
     } catch(e) {
         console.log(e);
         
+        counter.removeUsersInSite(user.name);
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
-            message: e.message
+            auth: false,
+            message: e.message,
+            usersInSite: [...counter.usersInSite]
         }))
     }
 }

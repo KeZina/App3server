@@ -1,20 +1,21 @@
 const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const counter = require('../counter');
 
 const deleteAcc = async (data, ws) => {
     try {
-        const verToken = jwt.verify(data.token, config.get('jwtSecret'));
+        const {name, token} = data;
+        const verToken = jwt.verify(token, config.get('jwtSecret'));
 
         await User.deleteOne({_id: verToken._id});
 
+        counter.removeUsersInSite(name);
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth',
-            auth: {
-                temp: false,
-                perm: false
-            }
+            auth: false,
+            usersInSite: [...counter.usersInSite]
         }))
     } catch(e) {
         console.log(e);
@@ -22,10 +23,7 @@ const deleteAcc = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
+            auth: false, 
             message: e
         }))
     }

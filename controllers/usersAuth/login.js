@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const counter = require('../counter');
 
 const login = async (data, ws) => {
     try {
@@ -9,6 +10,8 @@ const login = async (data, ws) => {
             const hash = await user.compareHash(password);
             if(hash) {
                 await user.addToken();
+
+                counter.addUsersInSite(user.name);
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'login',
@@ -17,16 +20,14 @@ const login = async (data, ws) => {
                         perm: true
                     },
                     name: user.name,
-                    token: user.token
+                    token: user.token,
+                    usersInSite: [...counter.usersInSite]
                 }))
             } else if(!hash){
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'login', 
-                    auth: {
-                        temp: false,
-                        perm: false
-                    }
+                    auth: false
                 }))
             } else {
                 throw new Error();
@@ -35,10 +36,7 @@ const login = async (data, ws) => {
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'login', 
-                auth: {
-                    temp: false,
-                    perm: false
-                }
+                auth: false
             }))
         } else {
             throw new Error();
@@ -49,10 +47,7 @@ const login = async (data, ws) => {
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 
-            auth: {
-                temp: false,
-                perm: false
-            }, 
+            auth: false,
             message: e
         }))
     }

@@ -1,17 +1,17 @@
 const Room = require('../../models/Room');
 
+
+// FIX THIS
 const getRoom = async (data, ws) => {
     try {
-        const {url} = data;
-
-        const room = await Room.findById(url);
+        const room = await Room.findById(data.url);
 
         if(room) {
             ws.send(JSON.stringify({
                 handler: 'room',
                 type: 'getRoom',
                 name: room.name,
-                url,
+                url: data.url,
                 success: true
             }))
         } else if(!room) {
@@ -22,7 +22,7 @@ const getRoom = async (data, ws) => {
 
         ws.send(JSON.stringify({
             handler: 'room',
-            type: 'createRoom',
+            type: 'getRoom',
             message: e,
             success: false
         }))

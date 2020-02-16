@@ -14,14 +14,10 @@ const createRoom = async (data, ws) => {
             }))
         } else if (!nameIsTaken) {
             const room = new Room({
-                name,
-                // token: '',
-                url: ''
+                name
             })
 
-            room.addUrl();
             await room.save();
-            // await room.addToken();
 
             ws.send(JSON.stringify({
                 handler: 'room',
@@ -29,7 +25,7 @@ const createRoom = async (data, ws) => {
                 success: true,
                 name,
                 token: room.token,
-                url: room.url
+                url: room._id
             }))
         }
     } catch(e) {
