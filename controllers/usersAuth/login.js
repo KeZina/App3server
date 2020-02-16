@@ -21,7 +21,6 @@ const login = async (data, ws) => {
                     },
                     name: user.name,
                     token: user.token,
-                    usersInSite: [...counter.usersInSite]
                 }))
             } else if(!hash){
                 ws.send(JSON.stringify({

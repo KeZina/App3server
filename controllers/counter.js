@@ -4,11 +4,12 @@ const counter = {
     usersInRoom: [],
     addUsersInSite: function(user){
         this.usersInSite.add(user);
-        console.log(this.usersInSite)
     },
     removeUsersInSite: function(user){
         this.usersInSite.delete(user);
-        console.log(this.usersInSite);
+    },
+    getUsersInSite: function(){
+        return Array.from(this.usersInSite);
     },
     addRoomsInSite: function(room){
         roomsInSite++;
@@ -23,5 +24,6 @@ const counter = {
         usersInRoom--;
     }
 }
+
 
 module.exports = counter;

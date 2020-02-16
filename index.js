@@ -17,57 +17,122 @@ const getRoom = require('./controllers/rooms/getRoom');
 const createMessage = require('./controllers/messages/createMessage');
 const getMessage = require('./controllers/messages/getMessages');
 
+const counter = require('./controllers/counter');
+
 const dbUrl = config.get('dbUrl');
 const port = config.get('port');
 
 const server = http.createServer();
 const wss = new WebSocket.Server({server});
 
-const usersInSite = [];
-
-
 wss.on('connection', ws => {
     console.log('connect');
 
-    ws.on('message', message => {
+    ws.on('message', async message => {
         const data = JSON.parse(message);
+        console.log(counter.usersInSite)
 
         switch(data.type) {
             // user cases
             case 'createTemp':
-                createTemp(data, ws);
+                await createTemp(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             case 'createPerm':
-                createPerm(data, ws);
+                await createPerm(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             case 'login':
-                login(data, ws);
+                await login(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             case 'logout':
-                logout(data, ws);
+                await logout(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             case 'deleteAcc':
-                deleteAcc(data,ws);
+                await deleteAcc(data,ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return
+
             case 'checkAuth':
-                checkAuth(data, ws);
+                await checkAuth(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             // room cases
             case 'createRoom':
-                createRoom(data, ws);
+                await createRoom(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return
+
             case 'getRoom':
-                getRoom(data,ws);
+                await getRoom(data,ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return
+
             case 'deleteRoom':
-                deleteRoom(data, ws);
+                await deleteRoom(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             // message cases
             case 'createMessage':
-                createMessage(data, ws);
+                await createMessage(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
+
             case 'getMessage':
-                getMessage(data, ws);
+                await getMessage(data, ws);
+                wss.clients.forEach(client => client.send(JSON.stringify({
+                    handler: 'counter',
+                    type: 'usersInSite',
+                    amount: counter.getUsersInSite()
+                })));
                 return;
         }
     })

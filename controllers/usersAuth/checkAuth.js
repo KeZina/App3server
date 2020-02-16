@@ -20,7 +20,6 @@ const checkAuth = async (data, ws) => {
                         perm: true
                     }, 
                     name: user.name,
-                    usersInSite: [...counter.usersInSite]
                 }))
             } else if(!user.hash) {
                 counter.addUsersInSite(user.name);
@@ -32,7 +31,6 @@ const checkAuth = async (data, ws) => {
                         perm: false
                     }, 
                     name: user.name,
-                    usersInSite: [...counter.usersInSite]
                 }))
             }
         } else if(!user) {
@@ -52,7 +50,6 @@ const checkAuth = async (data, ws) => {
             type: 'auth', 
             auth: false,
             message: e.message,
-            usersInSite: [...counter.usersInSite]
         }))
     }
 }

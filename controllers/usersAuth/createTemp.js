@@ -29,8 +29,7 @@ const createTemp = async (data, ws) => {
                     perm: false
                 }, 
                 name: user.name,
-                token: user.token,
-                usersInSite: [...counter.usersInSite]
+                token: user.token
             }))
 
 

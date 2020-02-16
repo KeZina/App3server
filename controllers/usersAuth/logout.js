@@ -19,7 +19,6 @@ const logout = async (data, ws) => {
             handler: 'user',
             type: 'auth',
             auth: false,
-            usersInSite: [...counter.usersInSite]
         }))
     } catch(e) {
         console.log(e);

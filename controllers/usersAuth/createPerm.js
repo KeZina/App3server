@@ -31,7 +31,6 @@ const createPerm = async (data, ws) => {
                 },
                 name: user.name,
                 token: user.token,
-                usersInSite: [...counter.usersInSite]
             }))
         } else throw new Error();
     } catch(e) {
