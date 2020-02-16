@@ -26,16 +26,15 @@ const port = config.get('port');
 const server = http.createServer();
 const wss = new WebSocket.Server({server});
 
-wss.on('connection', ws => {
-    console.log('connect');
+const sendToAll = (handler, type, content) => wss.clients.forEach(client => client.send(JSON.stringify({
+    handler,
+    type,
+    content
+})));
 
+wss.on('connection', ws => {
     ws.on('message', async message => {
         const data = JSON.parse(message);
-        const sendToAll = (handler, type, amount) => wss.clients.forEach(client => client.send(JSON.stringify({
-            handler,
-            type,
-            amount
-        })));
 
         switch(data.type) {
             // user cases
@@ -57,6 +56,7 @@ wss.on('connection', ws => {
             case 'logout':
                 await logout(data, ws);
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
+                sendToAll('counter', 'usersInRooms', counter.getUsersInRooms());
                 return;
 
             case 'deleteAcc':
@@ -67,12 +67,13 @@ wss.on('connection', ws => {
             case 'checkAuth':
                 await checkAuth(data, ws);
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
+                console.log(counter.getUsersInRooms())
+                sendToAll('counter', 'usersInRooms', counter.getUsersInRooms());
                 return;
 
             // room cases
             case 'createRoom':
                 await createRoom(data, ws);
-                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'getRoomList':
@@ -81,23 +82,20 @@ wss.on('connection', ws => {
 
             case 'getRoom':
                 await getRoom(data, ws);
-                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return
 
             case 'deleteRoom':
                 await deleteRoom(data, ws);
-                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             // message cases
             case 'createMessage':
-                await createMessage(data, ws);
-                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
+                await createMessage.addMessage(data);
+                sendToAll('message', 'getMessage', createMessage.getMessage());
                 return;
 
             case 'getMessage':
                 await getMessage(data, ws);
-                // sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
         }
     })

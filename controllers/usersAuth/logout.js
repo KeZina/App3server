@@ -5,7 +5,7 @@ const counter = require('../counter');
 
 const logout = async (data, ws) => {
     try {
-        const {name, token} = data;
+        const {name, token, roomUrl} = data;
         const verToken = jwt.verify(token, config.get('jwtSecret'));
 
         if(data.authType === 'temp') {
@@ -15,6 +15,9 @@ const logout = async (data, ws) => {
         }
 
         counter.removeUsersInSite(name);
+        if(roomUrl) {
+            counter.removeUsersInRooms(roomUrl, name)
+        }
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth',
