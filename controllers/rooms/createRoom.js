@@ -25,7 +25,7 @@ const createRoom = async (data, ws) => {
                 success: true,
                 name,
                 token: room.token,
-                url: room._id
+                roomUrl: room._id
             }))
         }
     } catch(e) {

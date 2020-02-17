@@ -11,7 +11,6 @@ const deleteAcc = require('./controllers/usersAuth/deleteAcc');
 const checkAuth = require('./controllers/usersAuth/checkAuth');
 
 const createRoom = require('./controllers/rooms/createRoom');
-const deleteRoom = require('./controllers/rooms/deleteRoom');
 const getRoomList = require('./controllers/rooms/getRoomList');
 const getRoom = require('./controllers/rooms/getRoom');
 const exitRoom = require('./controllers/rooms/exitRoom');
@@ -41,33 +40,43 @@ wss.on('connection', ws => {
         switch(data.type) {
             // user cases
             case 'createTemp':
+                counter.addSocketInSite(ws);
                 await createTemp(data, ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'createPerm':
+                counter.addSocketInSite(ws);
                 await createPerm(data, ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'login':
+                counter.addSocketInSite(ws);
                 await login(data, ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
             case 'logout':
                 await logout(data, ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 sendToAll('counter', 'usersInRooms', counter.getUsersInRooms());
                 return;
 
             case 'deleteAcc':
                 await deleteAcc(data,ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return
 
             case 'checkAuth':
+                counter.addSocketInSite(ws);
                 await checkAuth(data, ws);
+                counter.clearEmpty();
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
                 return;
 
@@ -82,16 +91,15 @@ wss.on('connection', ws => {
 
             case 'getRoom':
                 await getRoom(data, ws, sendToAll);
-                console.log(counter.getUsersInRooms())
                 return;
 
             case 'exitRoom':
                 await exitRoom(data, sendToAll);
-                console.log(counter.getUsersInRooms());
                 return;
 
-            case 'deleteRoom':
-                await deleteRoom(data, ws);
+            case 'inviteUser':
+                let userToInvite = counter.getUsersInSite().filter(item => item.name === data.name)[0];
+                await userToInvite.socket.send(JSON.stringify({handler: 'room', type: 'inviteUser', success: true, roomUrl: data.roomUrl, path: data.path}));
                 return;
 
             // message cases

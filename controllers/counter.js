@@ -1,14 +1,29 @@
 const counter = {
-    usersInSite: new Set(),
+    usersInSite: [],
     usersInRooms: {},
+    addSocketInSite: function(socket) {
+        this.usersInSite.push({socket});
+    },
     addUsersInSite: function(user) {
-        this.usersInSite.add(user);
+        this.usersInSite.map((item, index) => {
+            if(item.name === user) {
+                this.usersInSite.splice(index, 1);
+            }
+        })
+        
+        this.usersInSite[this.usersInSite.length - 1].name = user;
     },
     removeUsersInSite: function(user) {
-        this.usersInSite.delete(user);
+        if(this.usersInSite) {
+            this.usersInSite.map((item, index) => {
+                if(item.name === user) {
+                    this.usersInSite.splice(index, 1);
+                }
+            })
+        }
     },
     getUsersInSite: function() {
-        return Array.from(this.usersInSite);
+        return this.usersInSite;
     },
     addUsersInRooms: function(roomUrl, user) {
         if(this.usersInRooms[roomUrl]) {
@@ -21,12 +36,21 @@ const counter = {
             this.usersInRooms[roomUrl].push(user);
         }
     },
-    removeUsersInRooms: function(roomUrl, user) {
-        let usersList = this.usersInRooms[roomUrl].filter(item => item !== user);
-        this.usersInRooms[roomUrl] = usersList;
+    removeUsersInRooms: function(roomUrl, user = null) {
+        if(user) {
+            let usersList = this.usersInRooms[roomUrl].filter(item => item !== user);
+            this.usersInRooms[roomUrl] = usersList;
+        } else if(!user) {
+            let usersList = this.usersInRooms[roomUrl].filter(item => item.name);
+            this.usersInRooms[roomUrl] = usersList;
+        }
     },
     getUsersInRooms: function() {
         return this.usersInRooms;
+    },
+    clearEmpty: function() {
+        let totalUsersList = this.usersInSite.filter(item => item.name);
+        this.usersInSite = totalUsersList;
     }
 }
 

@@ -34,6 +34,7 @@ const checkAuth = async (data, ws) => {
                 }))
             }
         } else if(!user) {
+            counter.removeUsersInSite(data.name);
             ws.send(JSON.stringify({
                 handler: 'user',
                 type: 'auth', 
