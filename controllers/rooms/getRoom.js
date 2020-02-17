@@ -1,19 +1,21 @@
 const Room = require('../../models/Room');
+const counter = require('../counter');
 
-
-// FIX THIS
-const getRoom = async (data, ws) => {
+const getRoom = async (data, ws, sendToAll) => {
     try {
-        const room = await Room.findById(data.url);
+        const room = await Room.findById(data.roomUrl);
 
         if(room) {
+            counter.addUsersInRooms(data.roomUrl, data.user);
             ws.send(JSON.stringify({
                 handler: 'room',
                 type: 'getRoom',
                 name: room.name,
-                url: data.url,
+                roomUrl: data.roomUrl,
                 success: true
             }))
+
+            sendToAll('counter', 'usersInRooms', counter.getUsersInRooms());
         } else if(!room) {
             throw new Error('Wrong url');
         }

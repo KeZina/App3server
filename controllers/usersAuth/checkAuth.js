@@ -12,10 +12,6 @@ const checkAuth = async (data, ws) => {
         if(user) {
             if(user.hash){
                 counter.addUsersInSite(user.name);
-                if(data.roomUrl) {
-                    counter.addUsersInRooms(data.roomUrl, user.name);
-                }
-
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'auth', 
@@ -27,10 +23,6 @@ const checkAuth = async (data, ws) => {
                 }))
             } else if(!user.hash) {
                 counter.addUsersInSite(user.name);
-                if(data.roomUrl) {
-                    counter.addUsersInRooms(data.roomUrl, user.name);
-                }
-
                 ws.send(JSON.stringify({
                     handler: 'user',
                     type: 'auth', 
@@ -51,12 +43,8 @@ const checkAuth = async (data, ws) => {
 
     } catch(e) {
         console.log(e);
-        
-        counter.removeUsersInSite(user.name);
-        if(data.roomUrl) {
-            counter.removeUsersInRooms(data.roomUrl, user.name);
-        }
 
+        counter.removeUsersInSite(user.name);
         ws.send(JSON.stringify({
             handler: 'user',
             type: 'auth', 

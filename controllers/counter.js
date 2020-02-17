@@ -1,6 +1,6 @@
 const counter = {
     usersInSite: new Set(),
-    usersInRooms: new Map(),
+    usersInRooms: {},
     addUsersInSite: function(user) {
         this.usersInSite.add(user);
     },
@@ -11,21 +11,22 @@ const counter = {
         return Array.from(this.usersInSite);
     },
     addUsersInRooms: function(roomUrl, user) {
-            if(this.usersInRooms.has(roomUrl)) {
-                if(!this.usersInRooms.get(roomUrl).includes(user)) {
-                    this.usersInRooms.set(roomUrl, [...this.usersInRooms.get(roomUrl), user])
-                }
-            } else if(!this.usersInRooms.has(roomUrl)) {
-                this.usersInRooms.set(roomUrl, [user])
+        if(this.usersInRooms[roomUrl]) {
+            if(this.usersInRooms[roomUrl].includes(user)){
+                return;
             }
-
+            this.usersInRooms[roomUrl].push(user);
+        } else if(!this.usersInRooms[roomUrl]) {
+            this.usersInRooms[roomUrl] = [];
+            this.usersInRooms[roomUrl].push(user);
+        }
     },
     removeUsersInRooms: function(roomUrl, user) {
-        this.usersInRooms.delete(roomUrl, [user]);
+        let usersList = this.usersInRooms[roomUrl].filter(item => item !== user);
+        this.usersInRooms[roomUrl] = usersList;
     },
     getUsersInRooms: function() {
-        // return this.usersInRooms;
-        return Array.from(this.usersInRooms.entries());
+        return this.usersInRooms;
     }
 }
 

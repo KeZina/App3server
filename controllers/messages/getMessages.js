@@ -2,7 +2,7 @@ const Room = require('../../models/Room');
 
 const getMessage = async (data, ws) => {
     try {
-        const room = await Room.findById(data.url);
+        const room = await Room.findById(data.roomUrl);
 
         if(room) {
             ws.send(JSON.stringify({

@@ -6,7 +6,7 @@ const getRoomList = async (ws) => {
         const correctList = list.map(room => {
             return {
                 name: room.name,
-                url: room._id
+                roomUrl: room._id
             }
         });
 

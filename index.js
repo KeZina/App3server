@@ -14,6 +14,7 @@ const createRoom = require('./controllers/rooms/createRoom');
 const deleteRoom = require('./controllers/rooms/deleteRoom');
 const getRoomList = require('./controllers/rooms/getRoomList');
 const getRoom = require('./controllers/rooms/getRoom');
+const exitRoom = require('./controllers/rooms/exitRoom');
 
 const createMessage = require('./controllers/messages/createMessage');
 const getMessage = require('./controllers/messages/getMessages');
@@ -33,6 +34,7 @@ const sendToAll = (handler, type, content) => wss.clients.forEach(client => clie
 })));
 
 wss.on('connection', ws => {
+    console.log('connect');
     ws.on('message', async message => {
         const data = JSON.parse(message);
 
@@ -67,8 +69,6 @@ wss.on('connection', ws => {
             case 'checkAuth':
                 await checkAuth(data, ws);
                 sendToAll('counter', 'usersInSite', counter.getUsersInSite());
-                console.log(counter.getUsersInRooms())
-                sendToAll('counter', 'usersInRooms', counter.getUsersInRooms());
                 return;
 
             // room cases
@@ -81,8 +81,14 @@ wss.on('connection', ws => {
                 return;
 
             case 'getRoom':
-                await getRoom(data, ws);
-                return
+                await getRoom(data, ws, sendToAll);
+                console.log(counter.getUsersInRooms())
+                return;
+
+            case 'exitRoom':
+                await exitRoom(data, sendToAll);
+                console.log(counter.getUsersInRooms());
+                return;
 
             case 'deleteRoom':
                 await deleteRoom(data, ws);
